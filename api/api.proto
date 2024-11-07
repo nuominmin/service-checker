@@ -18,9 +18,7 @@ service V1 {
 message ServicesResp {
   message Service {
     string name = 1;
-    int32 health = 2;
+    uint32 status = 3;
   }
-
   repeated Service services = 2;
 }
-

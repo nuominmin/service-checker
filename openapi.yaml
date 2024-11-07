@@ -32,8 +32,8 @@ components:
             properties:
                 name:
                     type: string
-                health:
+                status:
                     type: integer
-                    format: int32
+                    format: uint32
 tags:
     - name: V1

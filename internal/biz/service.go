@@ -9,7 +9,7 @@ import (
 )
 
 // 定义健康状态等级
-type HealthStatus int
+type HealthStatus uint32
 
 const (
 	Unknown  HealthStatus = iota // 0: 未知状态
@@ -47,6 +47,13 @@ func (c *Checker) GetStatus() HealthStatus {
 	return c.Status
 }
 
+// addChecker 将新的 Checker 添加到 checkers 列表中.
+func (s *Service) addChecker(checker *Checker) {
+	s.checkersMu.Lock()
+	defer s.checkersMu.Unlock()
+	s.checkers = append(s.checkers, checker)
+}
+
 // IsServiceHealthy 检查服务健康状态
 func (s *Service) isServiceHealthy(url string) bool {
 	resp, err := http.Head(url)
@@ -62,7 +69,7 @@ func (s *Service) isServiceHealthy(url string) bool {
 // UpdateStatusOnFailure 更新健康状态等级，逐步降级
 func (s *Service) updateStatusOnFailure(checker *Checker) {
 	switch checker.GetStatus() {
-	case Healthy:
+	case Unknown, Healthy:
 		checker.SetStatus(Degraded)
 	case Degraded:
 		checker.SetStatus(Unstable)
@@ -84,7 +91,7 @@ func (s *Service) updateStatusOnSuccess(checker *Checker) {
 		checker.SetStatus(Unstable)
 	case Unstable:
 		checker.SetStatus(Degraded)
-	case Degraded:
+	case Degraded, Unknown:
 		checker.SetStatus(Healthy)
 	default:
 		// 如果已是 Healthy 状态，无需进一步提升
@@ -118,4 +125,11 @@ func (s *Service) healthy(checker *Checker) func(ctx context.Context) error {
 
 		return nil
 	}
+}
+
+// GetAllCheckers 返回所有的健康检查器列表.
+func (s *Service) GetAllCheckers() []*Checker {
+	s.checkersMu.RLock()
+	defer s.checkersMu.RUnlock()
+	return s.checkers
 }

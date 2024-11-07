@@ -34,8 +34,14 @@ func (s *Service) Close() {
 }
 
 func (s *Service) Services(ctx context.Context, in *empty.Empty) (*pb.ServicesResp, error) {
-	services := make([]*pb.ServicesResp_Service, 0)
-
+	allCheckers := s.svc.GetAllCheckers()
+	services := make([]*pb.ServicesResp_Service, len(allCheckers))
+	for i := 0; i < len(allCheckers); i++ {
+		services[i] = &pb.ServicesResp_Service{
+			Name:   allCheckers[i].Name,
+			Status: uint32(allCheckers[i].Status),
+		}
+	}
 	return &pb.ServicesResp{
 		Services: services,
 	}, nil
