@@ -1,0 +1,55 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "service-checker/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+}
+
+message Server {
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  HTTP http = 1;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+    // log level. default silent
+    // 1. silent
+    // 2. error
+    // 3. warn
+    // 4. info
+    int64 log_level = 3;
+    // Maximum number of idle connections. Default: 10
+    int64 max_idle_conns = 4;
+    // Maximum number of open connections. Default: 100
+    int64 max_open_conns = 5;
+    // Connection maximum lifetime. Default: 300s
+    google.protobuf.Duration conn_max_lifetime = 6;
+  }
+
+
+  message Service {
+    string name = 1;
+    string url = 2;
+    uint32 max_retries = 3;
+    int64 interval = 4;
+  }
+  // dev, test, prod
+  string env = 1;
+  // alert
+  repeated string alert_tokens = 2;
+  // database
+  Database database = 3;
+  // services
+  repeated Service services = 4;
+}
