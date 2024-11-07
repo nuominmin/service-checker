@@ -41,8 +41,6 @@ message Data {
   message Service {
     string name = 1;
     string url = 2;
-    uint32 max_retries = 3;
-    int64 interval = 4;
   }
   // dev, test, prod
   string env = 1;

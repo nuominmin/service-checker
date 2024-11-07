@@ -33,15 +33,10 @@ func (s *Service) Close() {
 	log.Info("close service resource. ")
 }
 
-// Ping ping the resource.
-func (s *Service) Ping(ctx context.Context, e *empty.Empty) (*empty.Empty, error) {
-	return &empty.Empty{}, nil
-}
+func (s *Service) Services(ctx context.Context, in *empty.Empty) (*pb.ServicesResp, error) {
+	services := make([]*pb.ServicesResp_Service, 0)
 
-// List .
-func (s *Service) List(ctx context.Context, in *pb.ListReq) (*pb.ListResp, error) {
-	return &pb.ListResp{
-		Total:    0,
-		DataList: make([]*pb.ListResp_Data, 0),
+	return &pb.ServicesResp{
+		Services: services,
 	}, nil
 }

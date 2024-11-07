@@ -34,15 +34,10 @@ func NewService(c *conf.Data, alert notifier.Notifier, workerPool workerreloader
 func (s *Service) Start(ctx context.Context) error {
 	log.Info("starting service")
 	for i := 0; i < len(s.c.Services); i++ {
-		interval := s.c.Services[i].Interval
-		if interval <= 0 {
-			interval = 60
-		}
 		s.workerPool.Start(s.c.Services[i].Name, s.healthy(&Checker{
-			Name:       s.c.Services[i].Name,
-			URL:        s.c.Services[i].Url,
-			MaxRetries: s.c.Services[i].MaxRetries,
-		}), time.Duration(interval)*time.Second)
+			Name: s.c.Services[i].Name,
+			URL:  s.c.Services[i].Url,
+		}), time.Duration(1)*time.Second)
 	}
 	return nil
 }

@@ -20,61 +20,38 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationV1List = "/v1.V1/List"
-const OperationV1Ping = "/v1.V1/Ping"
+const OperationV1Services = "/v1.V1/Services"
 
 type V1HTTPServer interface {
-	List(context.Context, *ListReq) (*ListResp, error)
-	Ping(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	Services(context.Context, *emptypb.Empty) (*ServicesResp, error)
 }
 
 func RegisterV1HTTPServer(s *http.Server, srv V1HTTPServer) {
 	r := s.Route("/")
-	r.GET("/ping", _V1_Ping0_HTTP_Handler(srv))
-	r.GET("/list", _V1_List0_HTTP_Handler(srv))
+	r.GET("/services", _V1_Services0_HTTP_Handler(srv))
 }
 
-func _V1_Ping0_HTTP_Handler(srv V1HTTPServer) func(ctx http.Context) error {
+func _V1_Services0_HTTP_Handler(srv V1HTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationV1Ping)
+		http.SetOperation(ctx, OperationV1Services)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Ping(ctx, req.(*emptypb.Empty))
+			return srv.Services(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _V1_List0_HTTP_Handler(srv V1HTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListReq
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationV1List)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.List(ctx, req.(*ListReq))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListResp)
+		reply := out.(*ServicesResp)
 		return ctx.Result(200, reply)
 	}
 }
 
 type V1HTTPClient interface {
-	List(ctx context.Context, req *ListReq, opts ...http.CallOption) (rsp *ListResp, err error)
-	Ping(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	Services(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ServicesResp, err error)
 }
 
 type V1HTTPClientImpl struct {
@@ -85,24 +62,11 @@ func NewV1HTTPClient(client *http.Client) V1HTTPClient {
 	return &V1HTTPClientImpl{client}
 }
 
-func (c *V1HTTPClientImpl) List(ctx context.Context, in *ListReq, opts ...http.CallOption) (*ListResp, error) {
-	var out ListResp
-	pattern := "/list"
+func (c *V1HTTPClientImpl) Services(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ServicesResp, error) {
+	var out ServicesResp
+	pattern := "/services"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationV1List))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *V1HTTPClientImpl) Ping(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/ping"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationV1Ping))
+	opts = append(opts, http.Operation(OperationV1Services))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

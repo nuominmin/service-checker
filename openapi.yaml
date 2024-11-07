@@ -6,64 +6,34 @@ info:
     title: V1 API
     version: 0.0.1
 paths:
-    /list:
+    /services:
         get:
             tags:
                 - V1
-            operationId: V1_List
-            parameters:
-                - name: page
-                  in: query
-                  description: |-
-                    page
-
-                     - Required: No
-                     - Default: When empty, query the first page
-                  schema:
-                    type: string
-                - name: size
-                  in: query
-                  description: |-
-                    size
-
-                     - Required: No
-                     - Default: 10
-                     - Size: The number is limited to [0,100]
-                  schema:
-                    type: string
+            operationId: V1_Services
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/v1.ListResp'
-    /ping:
-        get:
-            tags:
-                - V1
-            operationId: V1_Ping
-            responses:
-                "200":
-                    description: OK
-                    content: {}
+                                $ref: '#/components/schemas/v1.ServicesResp'
 components:
     schemas:
-        v1.ListResp:
+        v1.ServicesResp:
             type: object
             properties:
-                total:
-                    type: string
-                    description: 总数
-                dataList:
+                services:
                     type: array
                     items:
-                        $ref: '#/components/schemas/v1.ListResp_Data'
-                    description: 查询的结果集
-        v1.ListResp_Data:
+                        $ref: '#/components/schemas/v1.ServicesResp_Service'
+        v1.ServicesResp_Service:
             type: object
             properties:
-                id:
+                name:
                     type: string
+                health:
+                    type: integer
+                    format: int32
 tags:
     - name: V1

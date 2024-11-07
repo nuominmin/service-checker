@@ -3,49 +3,24 @@ syntax = "proto3";
 package v1;
 
 import "google/api/annotations.proto";
-import "validate/validate.proto";
 import "google/protobuf/empty.proto";
 
 option go_package = "v1/api;api";
 
 service V1 {
-  rpc Ping (.google.protobuf.Empty) returns (.google.protobuf.Empty) {
+  rpc Services (.google.protobuf.Empty) returns (ServicesResp) {
     option (google.api.http) = {
-      get: "/ping"
-    };
-  }
-
-  rpc List (ListReq) returns (ListResp) {
-    option (google.api.http) = {
-      get: "/list"
+      get: "/services"
     };
   }
 }
 
-message Empty {}
-
-message ListReq {
-  // page
-  //
-  // - Required: No
-  // - Default: When empty, query the first page
-  int64 page = 1;
-  // size
-  //
-  // - Required: No
-  // - Default: 10
-  // - Size: The number is limited to [0,100]
-  int64 size = 2 [(validate.rules).int64 = {gte: 0, lte: 100}];
-}
-
-message ListResp {
-  message Data {
-    uint64 id = 1;
+message ServicesResp {
+  message Service {
+    string name = 1;
+    int32 health = 2;
   }
 
-  // 总数
-  int64 total = 1;
-  // 查询的结果集
-  repeated Data dataList = 2;
+  repeated Service services = 2;
 }
 
