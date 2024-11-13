@@ -44,6 +44,16 @@ func (s *Service) Start(ctx context.Context) error {
 			URL:  s.c.Services[i].Url,
 		}
 
+		if s.c.Services[i].Ssh != nil {
+			checker.Server = Server{
+				Host:           s.c.Services[i].Ssh.Host,
+				User:           s.c.Services[i].Ssh.User,
+				Port:           s.c.Services[i].Ssh.Port,
+				PrivateKeyPath: s.c.Services[i].Ssh.PrivateKeyPath,
+				Command:        s.c.Services[i].Ssh.Command,
+			}
+		}
+
 		// 将 Checker 添加到列表中
 		s.addChecker(checker)
 		s.workerPool.Start(s.c.Services[i].Name, s.healthy(checker), time.Duration(1)*time.Second)

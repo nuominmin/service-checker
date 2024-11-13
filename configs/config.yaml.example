@@ -1,0 +1,19 @@
+server:
+  http:
+    addr: 0.0.0.0:9000
+    timeout: 5s
+data:
+  env: "prod"
+  alert_tokens:
+    - "token key"
+    - "token key"
+  services:
+    -
+      name: "servicename"
+      url: "https://servicehost/health"
+      ssh:
+        host: "host"
+        user: "root"
+        port: 22
+        private_key_path: "./id_rsa"
+        command: "ls;"

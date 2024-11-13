@@ -19,35 +19,25 @@ message Server {
   HTTP http = 1;
 }
 
+message ssh {
+  string host = 1;
+  string user = 2;
+  int32 port = 3;
+  string private_key_path = 4;
+  string command = 5;
+}
+
+message service {
+  string name = 1;
+  string url = 2;
+  ssh ssh = 3;
+}
+
 message Data {
-  message Database {
-    string driver = 1;
-    string source = 2;
-    // log level. default silent
-    // 1. silent
-    // 2. error
-    // 3. warn
-    // 4. info
-    int64 log_level = 3;
-    // Maximum number of idle connections. Default: 10
-    int64 max_idle_conns = 4;
-    // Maximum number of open connections. Default: 100
-    int64 max_open_conns = 5;
-    // Connection maximum lifetime. Default: 300s
-    google.protobuf.Duration conn_max_lifetime = 6;
-  }
-
-
-  message Service {
-    string name = 1;
-    string url = 2;
-  }
   // dev, test, prod
   string env = 1;
   // alert
   repeated string alert_tokens = 2;
-  // database
-  Database database = 3;
   // services
-  repeated Service services = 4;
+  repeated service services = 3;
 }

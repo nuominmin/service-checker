@@ -1,14 +1,22 @@
 package server
 
 import (
+	"bytes"
+	"embed"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/gorilla/handlers"
+	nethttp "net/http"
 	pb "service-checker/api"
 	"service-checker/internal/conf"
 	"service-checker/internal/service"
 	"time"
 )
+
+// frontend/services-status/dist/*
+//
+//go:embed *
+var content embed.FS
 
 // NewHTTPServer new an HTTP server.
 func NewHTTPServer(c *conf.Server, svc *service.Service) *http.Server {
@@ -34,6 +42,18 @@ func NewHTTPServer(c *conf.Server, svc *service.Service) *http.Server {
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
+
+	srv.Handle("/static/", nethttp.StripPrefix("/static/", nethttp.FileServer(nethttp.FS(content))))
+	srv.HandleFunc("/", func(w nethttp.ResponseWriter, r *nethttp.Request) {
+		body, err := content.ReadFile("dist/index.html")
+		if err != nil {
+			_, _ = w.Write([]byte(err.Error()))
+			return
+		}
+
+		nethttp.ServeContent(w, r, "index.html", time.Now(), bytes.NewReader(body))
+	})
+
 	pb.RegisterV1HTTPServer(srv, svc)
 	return srv
 }
